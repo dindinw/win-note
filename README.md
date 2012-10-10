@@ -1,1 +1,2 @@
-It's notes about windows dev enviorment
+Show how to setup a dev env for windows enviroment.
+
