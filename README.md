@@ -1,1 +1,1 @@
-It's notes about windows dev enviorment
+It's notes about setup a dev enviorment for Ubuntu 12.04 
