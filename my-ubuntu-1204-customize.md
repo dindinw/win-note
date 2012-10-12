@@ -79,6 +79,23 @@ $ sudo sed -i'.old' -e's/StartupNotify=true/StartupNotify=false/' /usr/share/app
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Look likes
+-----------
+
+UI theme
+
+go to 'system-settings'->'Appearance'->'Theme'->select 'Radiance' (I perfer bright than dark :-)
+
+My terminal format 
+
+  * font 
+   Edit -> Profile Perferences -> unselect 'use the system fixed width font' -> select 'Ubuntu Mono 12' (I used to it since 10.04)
+
+  * ls time format
+    $ echo "export TIME_STYLE=long-iso" >> ~/.bashrc
+
+
+
 Dev Env
 -------
 
@@ -123,14 +140,6 @@ $ export GIT_PS1_SHOWDIRTYSTATE=true
 $ export GIT_PS1_SHOWUNTRACKEDFILES=true
 $ PS1='\u@\h:\W$(__git_ps1 " [\[\e[0;32m\]%s\[\e[0m\]]")\$ '
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-2. My terminal format 
-
-  * font 
-   Edit -> Profile Perferences -> unselect 'use the system fixed width font' -> select 'Ubuntu Mono 12' (I used to it since 10.04)
-
-  * ls time format
-    $ echo "export TIME_STYLE=long-iso" >> ~/.bashrc
 
 3. .vimrc
 
