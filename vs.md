@@ -47,7 +47,7 @@ Windows SDK
   * 7.0A
     included in Visual Studio 2010  
 
-  * 6.1 (don't use it)   
+  * 6.1 (do not use it)
     Windows SDK for Windows Server 2008 and .NET Framework 3.5
     Version:	6.1	Date published:	2/5/2008
 
@@ -68,6 +68,11 @@ VS INSTALLATION
 
 WIN8 RP + VS2012 Express RTM
 ----------------------------
+
+* Note: 
+	Although we can do the installation, but the vs installed still got problem when try to deployment a program. ("a higher windows version required" error)  
+	no solution still now. (try to use a 90-day evaluation of Windows 8 Enterprise instead) 
+
 Gernally, It impossiable, since Windows8 RP only works with VS2012 RC (WIN8 RTM works with VS2012 RTM) but RC is not available now.
 We need to do some dirty modification. let it work. 
 
@@ -81,8 +86,12 @@ We need to do some dirty modification. let it work.
 ### Change registry
   1. run 'regedit'
   2. go to `HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\NET Framework Setup\NDP\v4\Full`
-  3. right click->'Pemission"->"Advanced"->"Owener" change to administrator
+  3. right click->"Pemission"->"Advanced"->"Owener" change to administrator
   4. change Version to '4.5.50709'
 ### Installation
   normal installation, done!
+
+
+WIN8 RTM EVL + VS2012 Express RTM
+---------------------------------
 
