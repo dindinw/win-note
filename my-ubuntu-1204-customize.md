@@ -136,6 +136,7 @@ $ git config --global color.ui true
 Colorize the bash prompt (you may wan to add it to .bash_rc )
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ export GIT_EDITOR=vim
 $ export GIT_PS1_SHOWDIRTYSTATE=true
 $ export GIT_PS1_SHOWUNTRACKEDFILES=true
 $ PS1='\u@\h:\w$(__git_ps1 " [\[\e[0;32m\]%s\[\e[0m\]]")\$ '
