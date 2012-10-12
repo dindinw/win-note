@@ -124,7 +124,10 @@ $ export GIT_PS1_SHOWUNTRACKEDFILES=true
 $ PS1='\u@\h:\W$(__git_ps1 " [\[\e[0;32m\]%s\[\e[0m\]]")\$ '
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-2. .vimrc
+2. My terminal font
+   Edit -> Profile Perferences -> unselect 'use the system fixed width font' -> select 'Ubuntu Mono 12' (I used to it since 10.04)
 
-3. .bashrc
+3. .vimrc
+
+4. .bashrc
    
