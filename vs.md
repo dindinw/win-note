@@ -95,3 +95,9 @@ We need to do some dirty modification. let it work.
 WIN8 RTM EVL + VS2012 Express RTM
 ---------------------------------
 
+WIN8 RTM EVL + VS2012 EVL
+-------------------------
+
+1. how to remove MSMPENG.EXE, which may consume memory and CPU when a scan is running. 
+   turn off "Windows Defender"
+2
