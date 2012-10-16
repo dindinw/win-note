@@ -1,1 +1,3 @@
-It's notes about windows dev enviorment
+It's notes about remote desktop. X11 session, VNC, RDP (windows) etc.
+
+ 
