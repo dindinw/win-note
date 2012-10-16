@@ -1,3 +1,13 @@
+Fix vbox guest addition install
+-------------------------------
+fedora do not install the linux kernal header by default, it required by compiling the virtual box guest addition.
+
+~~~~~~~~~~~~~~~~~~~~
+$ su -
+# yum install gcc 
+# yum install kernal-devel-3.3.4-5.fc17.x86_64
+
+
 Install I wanted
 ----------------
 
