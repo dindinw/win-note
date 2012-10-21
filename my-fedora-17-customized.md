@@ -55,3 +55,13 @@ $ export GIT_PS1_SHOWUNTRACKEDFILES=true
 $ PS1='\u@\h:\w$(__git_ps1 " [\[\e[0;32m\]%s\[\e[0m\]]")\$ '
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+### Enable SSH
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sudo systemctl enable sshd.service
+sudo systemctl start sshd.service
+system-config-firewall
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Note: the last command will open the firewal setting window,need to open port 22 to enable out-side machine connectivity.
+
+
