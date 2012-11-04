@@ -157,5 +157,195 @@ Download 11.2.0.1 from Oracle OTN. Note: 11.2.0.3 require additional access to M
 
 Installation Step
 -----------------
+### 1. Unzip
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ unzip linux_11gR2_database_1of2.zip
+$ unzip linux_11gR2_database_2of2.zip
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The folder 'database' shown.
 
+### 2. Fix Hosts file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ h=$(hostname -A);ip=$(hostname -i); echo -e "$ip\t${h%?}.localdomain\t$h" |sudo tee -a /etc/hosts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The "/etc/hosts" file looks like
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ cat /etc/hosts
+127.0.0.1		localhost.localdomain localhost
+::1		localhost6.localdomain6 localhost6
+192.168.1.169	home3.localdomain	home3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 3. Check&Set linux kenerl paramaters.
+
+#### 1. semmsl, semmns, semopm, and semmni
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/sbin/sysctl -a | grep sem
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This command displays the value of the semaphore parameters in the order listed.
+
+#### 2. shmall, shmmax, and shmmni 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep shm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This command displays the details of the shared memory segment sizes.
+
+#### 3. file-max 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep file-max
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This command displays the maximum number of file handles.
+
+#### 4. ip_local_port_range 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep ip_local_port_range
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This command displays a range of port numbers.
+
+#### 5. default rmem and maxi
+rmem_default 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep rmem_default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rmem_max 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep rmem_max
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 6. default wmem and max
+wmem_default 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep wmem_default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+wmem_max 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep wmem_max
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 7. check aio-max-nr
+aio-max-nr 	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# /sbin/sysctl -a | grep aio-max-nr
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 8. Edit the /etc/sysctl.conf file
+The recommend following setting by Oracle:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fs.aio-max-nr = 1048576
+fs.file-max = 6815744
+# kernel.shmall = 2097152
+kernel.shmmax = 4294967295
+# kernel.shmmni = 4096
+kernel.sem = 250 32000 100 128
+net.ipv4.ip_local_port_range = 9000 65500
+net.core.rmem_default = 262144
+net.core.rmem_max = 4194304
+net.core.wmem_default = 262144
+net.core.wmem_max = 1048576
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 9. Activate new settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/sbin/sysctl -p
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+### 4. User&Group and Security Settings 
+
+#### 1. Addd new group and user
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+groupadd oinstall
+groupadd dba
+groupadd oper
+
+useradd -g oinstall -G dba,oper oracle
+passwd oracle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#### 2. Disable 'SELINUX'
+NOTE: need a reboot to take effect.
+Editing the "/etc/selinux/config" file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SELINUX=disabled
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 3. Config PAM limit
+
+Resource Limits for the "oracle" User (see [oracle doc|http://docs.oracle.com/cd/E11882_01/install.112/e24321/pre_install.htm#autoId49] for details)
+Add the following to the "/etc/security/limits.conf" file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+oracle              soft    nproc   2047
+oracle              hard    nproc   16384
+oracle              soft    nofile  1024
+oracle              hard    nofile  65536
+oracle              soft    stack   10240
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add the following to the "/etc/pam.d/login" file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+session    required     pam_limits.so
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 5. Prepare Required directories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mkdir -p /u01/app/oracle/product/11.2.0/db_1
+chown -R oracle:oinstall /u01
+chmod -R 775 /u01
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 6. Set Xhost
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xhost +home3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 7. Change "/etc/redhat-release"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+su - 
+cat /etc/redhat-release > /etc/redhat-release.fc17
+cat /etc/redhat-release|sed -e "s/Fedora release 17 (Beefy Miracle)/redhat release 5/" > /etc/redhat-release.rhe5
+mv -f /etc/redhat-release.rhe5 /etc/redhat-release
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 8. Modify ".bash_profile" for oracle user.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Oracle Settings
+TMP=/tmp; export TMP
+TMPDIR=$TMP; export TMPDIR
+
+ORACLE_HOSTNAME=home3.localdomain; export ORACLE_HOSTNAME
+ORACLE_UNQNAME=DB11G; export ORACLE_UNQNAME
+ORACLE_BASE=/u01/app/oracle; export ORACLE_BASE
+ORACLE_HOME=$ORACLE_BASE/product/11.2.0/db_1; export ORACLE_HOME
+ORACLE_SID=DB11G; export ORACLE_SID
+ORACLE_TERM=xterm; export ORACLE_TERM
+PATH=/usr/sbin:$PATH; export PATH
+PATH=$ORACLE_HOME/bin:$PATH; export PATH
+
+LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib; export LD_LIBRARY_PATH
+CLASSPATH=$ORACLE_HOME/JRE:$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib; export CLASSPATH
+
+if [ $USER = "oracle" ]; then
+  if [ $SHELL = "/bin/ksh" ]; then
+    ulimit -p 16384
+    ulimit -n 65536
+  else
+    ulimit -u 16384 -n 65536
+  fi
+fi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 9. Run "./runInstaller"
+
+
+Post Installation
+----------------
+
+### 1. Restore "/etc/redhat-release"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# mv -f /etc/redhat-release.fc17 /etc/redhat-release
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### 2. Set Oracle DB Start/Stop automatically
 
