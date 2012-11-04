@@ -39,7 +39,7 @@ tmpfs           1.5G  256K  1.5G   1% /dev/shm
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $ rpm -qa|grep binutils
-binutils-2.22.52.0.1-10.fc17.i686
+b-2.22.52.0.1-10.fc17.i686
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #### 2. libstdc
@@ -356,8 +356,110 @@ Post Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ### 2. Set Oracle DB Start/Stop automatically
-Edit the "/etc/oratab" file setting the restart flag for each instance to 'Y'.
+
+#### Edit the "/etc/oratab" file setting the restart flag for each instance to 'Y'.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ora11g:/u01/app/oracle/product/11.2.0/db_1:Y
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 11gR2 update
+11gR2 deprecate the dbstart/dbshut script. we need to create script our own.
+
+create "/etc/init.d/dbora" , which is the service control script.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#!/bin/sh
+# chkconfig: 345 99 10
+# description: Oracle auto start-stop script.
+#
+# Set ORA_OWNER to the user id of the owner of the 
+# Oracle database software.
+
+ORA_OWNER=oracle
+
+case "$1" in
+    'start')
+        # Start the Oracle databases:
+        # The following command assumes that the oracle login 
+        # will not prompt the user for any values
+        su - $ORA_OWNER -c "/home/oracle/scripts/startup.sh >> /home/oracle/scripts/startup_shutdown.log 2>&1"
+        touch /var/lock/subsys/dbora
+        ;;
+    'stop')
+        # Stop the Oracle databases:
+        # The following command assumes that the oracle login 
+        # will not prompt the user for any values
+        su - $ORA_OWNER -c "/home/oracle/scripts/shutdown.sh >> /home/oracle/scripts/startup_shutdown.log 2>&1"
+        rm -f /var/lock/subsys/dbora
+        ;;
+esac
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+set privileges to 750.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+chmod 750 /etc/init.d/dbora
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+add dbora to chkconfig (run levels and auto-start)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+chkconfig --add dbora
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+create "scripts" folder
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# mkdir -p /home/oracle/scripts
+# chown oracle.oinstall /home/oracle/scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+create "/home/oracle/scripts/startup.sh" 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#!/bin/bash
+
+export ORACLE_SID=ora11g
+ORAENV_ASK=NO
+. oraenv
+ORAENV_ASK=YES
+
+# Start Listener
+lsnrctl start
+
+# Start Database
+sqlplus / as sysdba << EOF
+STARTUP;
+EXIT;
+EOF
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+and "/home/oracle/scripts/shutdown.sh"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#!/bin/bash
+
+export ORACLE_SID=ora11g
+ORAENV_ASK=NO
+. oraenv
+ORAENV_ASK=YES
+
+# Stop Database
+sqlplus / as sysdba << EOF
+SHUTDOWN IMMEDIATE;
+EXIT;
+EOF
+
+# Stop Listener
+lsnrctl stop
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+chmod and ownner
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+chmod u+x /home/oracle/scripts/startup.sh /home/oracle/scripts/shutdown.sh
+chown oracle.oinstall /home/oracle/scripts/startup.sh /home/oracle/scripts/shutdown.sh
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+service dbora stop
+service dbora start
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
 
