@@ -64,4 +64,18 @@ system-config-firewall
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Note: the last command will open the firewal setting window,need to open port 22 to enable out-side machine connectivity.
 
+VIM
+---
 
+### Install the completed version
+ 
+By default, the Fedora 17 only install a minimal version of VIM.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ rpm -qa|grep ^vim
+vim-minimal-7.3.682-1.fc17.i686
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+So, We want to replace a more feature completed one.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ sudo yum install vim-enhanced 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
