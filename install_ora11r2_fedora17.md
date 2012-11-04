@@ -308,7 +308,7 @@ mv -f /etc/redhat-release.rhe5 /etc/redhat-release
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ### 8. Modify ".bash_profile" for oracle user.
-
+note: the $ORACLE_SID may need to customize.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Oracle Settings
 TMP=/tmp; export TMP
@@ -318,7 +318,7 @@ ORACLE_HOSTNAME=home3.localdomain; export ORACLE_HOSTNAME
 ORACLE_UNQNAME=DB11G; export ORACLE_UNQNAME
 ORACLE_BASE=/u01/app/oracle; export ORACLE_BASE
 ORACLE_HOME=$ORACLE_BASE/product/11.2.0/db_1; export ORACLE_HOME
-ORACLE_SID=DB11G; export ORACLE_SID
+ORACLE_SID=ora11g; export ORACLE_SID
 ORACLE_TERM=xterm; export ORACLE_TERM
 PATH=/usr/sbin:$PATH; export PATH
 PATH=$ORACLE_HOME/bin:$PATH; export PATH
@@ -337,7 +337,15 @@ fi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ### 9. Run "./runInstaller"
-
+#### fix emagent error 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ls $ORACLE_HOME/sysman/lib/ins_emagent.mk
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Once the file exists, do:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cat $ORACLE_HOME/sysman/lib/ins_emagent.mk|sed -e "s/\$(MK_EMAGENT_NMECTL)/\$(MK_EMAGENT_NMECTL) -lnnz11/" >  $ORACLE_HOME/sysman/lib/ins_emagent.mk.tmp
+mv -f $ORACLE_HOME/sysman/lib/ins_emagent.mk.tmp $ORACLE_HOME/sysman/lib/ins_emagent.mk
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Post Installation
 ----------------
@@ -348,4 +356,8 @@ Post Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ### 2. Set Oracle DB Start/Stop automatically
+Edit the "/etc/oratab" file setting the restart flag for each instance to 'Y'.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ora11g:/u01/app/oracle/product/11.2.0/db_1:Y
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
